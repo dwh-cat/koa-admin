@@ -12,7 +12,7 @@ class HttpError extends Error {
 }
 
 const BusinessError = (code, message, details) =>
-    new HttpError(400, code, message, details)
+    new HttpError(200, code, message, details)
 
 const errorHandler = () => async (ctx, next) => {
     try {

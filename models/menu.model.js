@@ -7,6 +7,11 @@ const Menu = sequelize.define('menu', {
         primaryKey: true,
         autoIncrement: true
     },
+    title: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        comment: '菜单标题'
+    },
     name: {
         type: DataTypes.STRING(50),
         allowNull: false,

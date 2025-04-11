@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs')
 const { Op } = require('sequelize')
 const Role = require('../models/role.model')
 const auth = require('../middlewares/auth')
+const Menu = require('../models/menu.model')
 const router = new Router({ prefix: '/api/users' })
 // 在用户模型中添加安全字段过滤方法
 User.prototype.filterSafeFields = function () {

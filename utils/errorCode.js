@@ -1,5 +1,5 @@
 module.exports = {
-    SUCCESS: 200,//成功
+    SUCCESS: 1,//成功
     PARAM_ERROR: 4001,//参数错误
     AUTH_FAILED: 4010,//认证失败
     FORBIDDEN: 4030,//无权限访问,

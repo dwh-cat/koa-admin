@@ -10,6 +10,7 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
+const cors = require('@koa/cors')
 const responseFormatter = require('./middlewares/responseFormatter')
 const { errorHandler } = require('./middlewares/errorHandler')
 const authRouter = require('./routes/auth')
@@ -19,7 +20,26 @@ const permissionRouter = require('./routes/permission')
 const menuRouter = require('./routes/menu')
 // error handler
 onerror(app)
-
+// 添加 CORS 中间件配置
+app.use(cors({
+  origin: ctx => {
+    // 在开发环境下允许所有来源
+    if (process.env.NODE_ENV !== 'production') {
+      return '*'
+    }
+    // 在生产环境下只允许特定域名
+    const whitelist = process.env.CORS_WHITELIST 
+      ? process.env.CORS_WHITELIST.split(',') 
+      : ['http://localhost:3000']
+    const requestOrigin = ctx.get('Origin')
+    return whitelist.includes(requestOrigin) ? requestOrigin : false
+  },
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
+  maxAge: 5 * 60 // 预检请求缓存5分钟
+}))
 // middlewares
 app.use(bodyparser({
   enableTypes: ['json', 'form', 'text']

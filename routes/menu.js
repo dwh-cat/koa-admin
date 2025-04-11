@@ -52,19 +52,37 @@ router.get('/list', auth(), authorize(['menu:read']), async ctx => {
         ]
     })
 
-    // 构建树形结构
+    // 构建新的树形结构
     const buildTree = (items, parentId = 0) => {
-        const result = []
-        for (const item of items) {
-            if (item.parent_id === parentId) {
+        return items
+            .filter(item => item.parent_id === parentId)
+            .map(item => {
                 const children = buildTree(items, item.id)
-                if (children.length) {
-                    item.children = children
+                const menuItem = {
+                    id: item.id,
+                    path: item.path,
+                    name: item.name,
+                    component: item.component,
+                    parent_id: item.parent_id,
+                    redirect: item.redirect,
+                    meta: {
+                        sort: item.sort,
+                        title: item.title,
+                        icon: item.icon,
+                        noClosable: !item.closable,
+                        noKeepAlive: !item.cache,
+                        badge: item.badge,
+                        dot: item.dot,
+                        hidden: item.hidden
+                    }
                 }
-                result.push(item)
-            }
-        }
-        return result
+                // 只有在有子菜单时才添加 children
+                if (children.length > 0) {
+                    menuItem.children = children
+                }
+
+                return menuItem
+            })
     }
 
     ctx.success(buildTree(menus.map(m => m.get({ plain: true }))))
@@ -72,8 +90,8 @@ router.get('/list', auth(), authorize(['menu:read']), async ctx => {
 
 // 更新菜单
 router.put('/update', auth(), authorize(['menu:update']), async ctx => {
-    const { id, name, path, component, redirect, title, icon, badge, 
-            dot, no_closable, no_cache, sort, parent_id, hidden, status } = ctx.request.body
+    const { id, name, path, component, redirect, title, icon, badge, dot, 
+        closable, cache, sort, parent_id, hidden } = ctx.request.body
 
     if (!id) {
         throw BusinessError(errorCode.PARAM_ERROR, '菜单ID不能为空')
@@ -92,8 +110,8 @@ router.put('/update', auth(), authorize(['menu:update']), async ctx => {
     }
 
     // 更新字段
-    const fields = { name, path, component, redirect, title, icon, badge, 
-                    dot, no_closable, no_cache, sort, parent_id, hidden, status }
+    const fields = {name, path, component, redirect, title, icon, badge, dot, 
+        closable, cache, sort, parent_id, hidden}
     for (const [key, value] of Object.entries(fields)) {
         if (value !== undefined) {
             menu[key] = value
